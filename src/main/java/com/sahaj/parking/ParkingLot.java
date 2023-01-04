@@ -13,27 +13,26 @@ import com.sahaj.parking.vehicle.Vehicle;
 public class ParkingLot {
 
 	private FeeModel feeModel;
-	private int twoWheelerParkingSpots;
+	private int motorcycleParkingSpots;
 	private int carParkingSpots;
 	private int busParkingSpots;
 	private HashMap<Integer, Vehicle> parkedVehicles;
 
-	public ParkingLot(LocationType locationType, int twoWheelerParkingSpots, int carParkingSpots, int busParkingSpots) {
+	public ParkingLot(LocationType locationType, int motorcycleParkingSpots, int carParkingSpots, int busParkingSpots) {
 		this.busParkingSpots = busParkingSpots;
 		this.carParkingSpots = carParkingSpots;
-		this.twoWheelerParkingSpots = twoWheelerParkingSpots;
+		this.motorcycleParkingSpots = motorcycleParkingSpots;
 		parkedVehicles = new HashMap<>();
 		feeModel = FeeModelFactory.createFeeModel(locationType);
-
 	}
 
 	public Ticket park(Vehicle vehicle) {
 		switch (vehicle.getType()) {
 
-		case TWOWHEELER:
-			if (twoWheelerParkingSpots == 0)
+		case MOTORCYCLE:
+			if (motorcycleParkingSpots == 0)
 				return null;
-			twoWheelerParkingSpots--;
+			motorcycleParkingSpots--;
 			break;
 		case CAR:
 			if (carParkingSpots == 0)
@@ -54,17 +53,17 @@ public class ParkingLot {
 			nextAvaiableParkingSpot++;
 		}
 		parkedVehicles.put(nextAvaiableParkingSpot, vehicle);
-
+		
 		return new Ticket(nextAvaiableParkingSpot, vehicle.getEntryDateTime());
 	}
 
-	public Receipt unpark(Ticket ticket) {
+	public Receipt unpark(Ticket ticket, LocalDateTime exitDateTime) {
 		Vehicle vehicle = parkedVehicles.get(ticket.getSpotNo());
 
 		switch (vehicle.getType()) {
 
-		case TWOWHEELER:
-			twoWheelerParkingSpots++;
+		case MOTORCYCLE:
+			motorcycleParkingSpots++;
 			break;
 		case CAR:
 			carParkingSpots++;
@@ -78,7 +77,7 @@ public class ParkingLot {
 
 		parkedVehicles.remove(ticket.getSpotNo());
 
-		return new Receipt(ticket, LocalDateTime.now(), feeModel.calculateFee(ticket.getSpotNo(), LocalDateTime.now()));
+		return new Receipt(ticket, exitDateTime, feeModel.calculateFee(vehicle, exitDateTime));
 	}
 
 }

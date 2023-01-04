@@ -1,0 +1,8 @@
+mall motorcycle 9 0 12 0 30
+mall car 9 0 18 0 120
+mall bus 9 0 21 0 360
+stadium motorcycle 9 0 12 0 60
+stadium car 9 0 18 0 120
+airport motorcycle 9 0 12 0 40
+airport car 9 0 12 0 60
+airport car 12 0 24 0 80

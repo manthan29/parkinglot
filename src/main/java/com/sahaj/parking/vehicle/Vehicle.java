@@ -19,6 +19,11 @@ public class Vehicle {
 	public LocalDateTime getEntryDateTime() {
 		return entryDateTime;
 	}
+
+	@Override
+	public String toString() {
+		return "Vehicle [type=" + type + ", entryDateTime=" + entryDateTime + "]";
+	}
 	
 	
 }
