@@ -194,16 +194,7 @@ class ParkingLotTest {
 			LocalDateTime entryTime = LocalDateTime.of(2022, 1, 1, entryHour, entryMinute);
 			LocalDateTime exitTime = LocalDateTime.of(2022, 1, 1, exitHour, exitMinute);
 			// create the appropriate vehicle object
-			Vehicle vehicle;
-			if (vehicleType.equals("motorcycle")) {
-				vehicle = new Vehicle(VehicleType.MOTORCYCLE, entryTime);
-			} else if (vehicleType.equals("car")) {
-				vehicle = new Vehicle(VehicleType.CAR, entryTime);
-			} else if (vehicleType.equals("bus")) {
-				vehicle = new Vehicle(VehicleType.BUS, entryTime);
-			} else {
-				continue;
-			}
+			Vehicle vehicle = new Vehicle(VehicleType.valueOf(vehicleType), entryTime);
 			ParkingLot parkingLot = new ParkingLot(FeeModelType.valueOf(locationType), motorcycleSpots, carSpots, busSpots);
 			Ticket ticket = parkingLot.park(vehicle);
 			System.out.println(ticket);

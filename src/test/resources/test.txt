@@ -1,5 +1,5 @@
 Feemodel motorcyclespot carspot busspot vehicletype entryhour entryminute exithour exitminute expectedfee
-MALL 10 10 10 motorcycle 12 30 13 45 20
-STADIUM 10 10 10 bus 12 30 13 45 -1
-AIRPORT 10 10 10 car 12 30 13 45 60
-MALL 10 10 10 motorcycle 12 30 14 45 30
+MALL 10 10 10 MOTORCYCLE 12 30 13 45 20
+STADIUM 10 10 10 BUS 12 30 13 45 -1
+AIRPORT 10 10 10 CAR 12 30 13 45 60
+MALL 10 10 10 MOTORCYCLE 12 30 14 45 30
