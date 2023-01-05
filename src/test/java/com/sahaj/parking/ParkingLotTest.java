@@ -21,11 +21,8 @@ import com.sahaj.parking.vehicle.VehicleType;
 
 class ParkingLotTest {
 	
-	private TestInfo testInfo;
-
 	@BeforeEach
 	void init(TestInfo testInfo) {
-	    this.testInfo = testInfo;
 	    System.out.println(testInfo.getDisplayName());
 	}
 	
