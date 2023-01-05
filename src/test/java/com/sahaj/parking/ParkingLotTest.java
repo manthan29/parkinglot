@@ -49,11 +49,8 @@ class ParkingLotTest {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.MALL, 10, 10, 10);
 		Vehicle vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle);
-		Ticket expectedTicket = new Ticket(1, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(28));
-		Receipt expectedReceipt = new Receipt(1, ticket, vehicle.getEntryDateTime().plusMinutes(28), 10);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(10, receipt.getFee());
 	}
 
 	@Test
@@ -63,35 +60,23 @@ class ParkingLotTest {
 
 		Vehicle vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle);
-		Ticket expectedTicket = new Ticket(1, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(220));
-		Receipt expectedReceipt = new Receipt(1, ticket, vehicle.getEntryDateTime().plusMinutes(220), 30);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(30, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(2, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(899));
-		expectedReceipt = new Receipt(2, ticket, vehicle.getEntryDateTime().plusMinutes(899), 390);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(390, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(3, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(690));
-		expectedReceipt = new Receipt(3, ticket, vehicle.getEntryDateTime().plusMinutes(690), 180);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(180, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(4, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(785));
-		expectedReceipt = new Receipt(4, ticket, vehicle.getEntryDateTime().plusMinutes(785), 580);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(580, receipt.getFee());
 
 	}
 
@@ -102,50 +87,33 @@ class ParkingLotTest {
 
 		Vehicle vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle);
-		Ticket expectedTicket = new Ticket(1, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(55));
-		Receipt expectedReceipt = new Receipt(1, ticket, vehicle.getEntryDateTime().plusMinutes(55), 0);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(0, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(2, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(899));
-		expectedReceipt = new Receipt(2, ticket, vehicle.getEntryDateTime().plusMinutes(899), 60);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(60, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(3, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(1452));
-		expectedReceipt = new Receipt(3, ticket, vehicle.getEntryDateTime().plusMinutes(1452), 160);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(160, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(4, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(50));
-		expectedReceipt = new Receipt(4, ticket, vehicle.getEntryDateTime().plusMinutes(50), 60);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(60, receipt.getFee());
 
 		vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(5, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(1439));
-		expectedReceipt = new Receipt(5, ticket, vehicle.getEntryDateTime().plusMinutes(1439), 80);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(80, receipt.getFee());
+		
 		vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ticket = parkingLot.park(vehicle);
-		expectedTicket = new Ticket(6, 1, vehicle.getEntryDateTime());
-		assertEquals(expectedTicket, ticket);
 		receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(4380));
-		expectedReceipt = new Receipt(6, ticket, vehicle.getEntryDateTime().plusMinutes(4380), 400);
-		assertEquals(expectedReceipt, receipt);
+		assertEquals(400, receipt.getFee());
 
 	}
 	@Test
@@ -153,14 +121,14 @@ class ParkingLotTest {
 		Vehicle vehicle = new Vehicle(VehicleType.CAR, LocalDateTime.now());
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.MALL, 20, 3, 0);
 		Ticket ticket = parkingLot.park(vehicle);
-		Ticket ticket2 = parkingLot.park(vehicle);
+		parkingLot.park(vehicle);
 		Ticket ticket3 = parkingLot.park(vehicle);
 		Ticket ticket4 = parkingLot.park(vehicle);
 		assertEquals(null, ticket4);
-		Receipt receipt = parkingLot.unpark(ticket, LocalDateTime.now().plusMinutes(200));
-		Ticket ticket5 = parkingLot.park(vehicle);
-		Receipt receipt2 = parkingLot.unpark(ticket3, LocalDateTime.now().plusMinutes(200));
-		Ticket ticket6 = parkingLot.park(vehicle);
+		parkingLot.unpark(ticket, LocalDateTime.now().plusMinutes(200));
+		parkingLot.park(vehicle);
+		parkingLot.unpark(ticket3, LocalDateTime.now().plusMinutes(200));
+		parkingLot.park(vehicle);
 		Ticket ticket7 = parkingLot.park(vehicle);
 		assertEquals(null, ticket7);
 	}

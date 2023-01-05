@@ -17,14 +17,6 @@ public class Ticket {
 		this.entryDateTime = entryDateTime;
 	}
 	
-	//To be used only for testing
-	public Ticket(int ticketNo, int spotNo, LocalDateTime entryDateTime) {
-		super();
-		this.ticketNo = ticketNo;
-		this.spotNo = spotNo;
-		this.entryDateTime = entryDateTime;
-	}
-
 	public int getTicketNo() {
 		return ticketNo;
 	}

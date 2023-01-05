@@ -18,20 +18,12 @@ public class ParkingLot {
 	private int busParkingSpots;
 	private HashMap<Integer, Vehicle> parkedVehicles;
 
-	public ParkingLot(FeeModelType locationType, int motorcycleParkingSpots, int carParkingSpots, int busParkingSpots) {
+	public ParkingLot(FeeModelType feeModelType, int motorcycleParkingSpots, int carParkingSpots, int busParkingSpots) {
 		this.busParkingSpots = busParkingSpots;
 		this.carParkingSpots = carParkingSpots;
 		this.motorcycleParkingSpots = motorcycleParkingSpots;
 		parkedVehicles = new HashMap<>();
-		feeModel = FeeModelFactory.createFeeModel(locationType);
-	}
-	
-	public ParkingLot(FeeModelType locationType, int motorcycleParkingSpots, int carParkingSpots) {
-		this.busParkingSpots = 0;
-		this.carParkingSpots = carParkingSpots;
-		this.motorcycleParkingSpots = motorcycleParkingSpots;
-		parkedVehicles = new HashMap<>();
-		feeModel = FeeModelFactory.createFeeModel(locationType);
+		feeModel = FeeModelFactory.createFeeModel(feeModelType);
 	}
 
 	public Ticket park(Vehicle vehicle) {

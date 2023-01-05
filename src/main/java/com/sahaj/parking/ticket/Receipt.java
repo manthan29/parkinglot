@@ -19,18 +19,6 @@ public class Receipt {
 		this.receiptNo = ++receiptCounter;
 	}
 	
-	
-	//To be used only for testing
-	public Receipt(int receiptNo, Ticket ticket, LocalDateTime exitDateTime, int fee) {
-		super();
-		this.receiptNo = receiptNo;
-		this.ticket = ticket;
-		this.exitDateTime = exitDateTime;
-		this.fee = fee;
-	}
-
-
-
 	public LocalDateTime getExitDateTime() {
 		return exitDateTime;
 	}
