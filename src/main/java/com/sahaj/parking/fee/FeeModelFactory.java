@@ -2,12 +2,12 @@ package com.sahaj.parking.fee;
 
 public class FeeModelFactory {
 	
-	public static FeeModel createFeeModel(LocationType type) {
-        if (type.equals(LocationType.MALL)) {
+	public static FeeModel createFeeModel(FeeModelType type) {
+        if (type.equals(FeeModelType.MALL)) {
             return new MallFeeModel();
-        } else if (type.equals(LocationType.STADIUM)) {
+        } else if (type.equals(FeeModelType.STADIUM)) {
             return new StadiumFeeModel();
-        } else if (type.equals(LocationType.AIRPORT)) {
+        } else if (type.equals(FeeModelType.AIRPORT)) {
             return new AirportFeeModel();
         } else {
             return null;

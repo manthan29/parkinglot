@@ -1,6 +1,6 @@
 package com.sahaj.parking.fee;
 
-public enum LocationType {
+public enum FeeModelType {
 
 	MALL,
 	AIRPORT,

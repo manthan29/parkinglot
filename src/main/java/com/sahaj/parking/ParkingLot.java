@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.sahaj.parking.fee.FeeModel;
 import com.sahaj.parking.fee.FeeModelFactory;
-import com.sahaj.parking.fee.LocationType;
+import com.sahaj.parking.fee.FeeModelType;
 import com.sahaj.parking.ticket.Receipt;
 import com.sahaj.parking.ticket.Ticket;
 import com.sahaj.parking.vehicle.Vehicle;
@@ -18,8 +18,16 @@ public class ParkingLot {
 	private int busParkingSpots;
 	private HashMap<Integer, Vehicle> parkedVehicles;
 
-	public ParkingLot(LocationType locationType, int motorcycleParkingSpots, int carParkingSpots, int busParkingSpots) {
+	public ParkingLot(FeeModelType locationType, int motorcycleParkingSpots, int carParkingSpots, int busParkingSpots) {
 		this.busParkingSpots = busParkingSpots;
+		this.carParkingSpots = carParkingSpots;
+		this.motorcycleParkingSpots = motorcycleParkingSpots;
+		parkedVehicles = new HashMap<>();
+		feeModel = FeeModelFactory.createFeeModel(locationType);
+	}
+	
+	public ParkingLot(FeeModelType locationType, int motorcycleParkingSpots, int carParkingSpots) {
+		this.busParkingSpots = 0;
 		this.carParkingSpots = carParkingSpots;
 		this.motorcycleParkingSpots = motorcycleParkingSpots;
 		parkedVehicles = new HashMap<>();
