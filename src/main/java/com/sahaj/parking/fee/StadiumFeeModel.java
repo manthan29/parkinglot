@@ -6,6 +6,8 @@ import com.sahaj.parking.vehicle.Vehicle;
 
 public class StadiumFeeModel implements FeeModel {
 
+	private static StadiumFeeModel stadiumFeeModel;
+	
 	private static final int MOTORCYCLE_FEE_INTERVAL_1 = 30;
 	private static final int MOTORCYCLE_FEE_INTERVAL_2 = 60;
 	private static final int MOTORCYCLE_FEE_HOURLY = 100;
@@ -14,6 +16,16 @@ public class StadiumFeeModel implements FeeModel {
 	private static final int CAR_FEE_INTERVAL_2 = 120;
 	private static final int CAR_FEE_HOURLY = 200;
 
+	private StadiumFeeModel() {
+		super();
+	}
+	
+	public static StadiumFeeModel getInstance() {
+		if(stadiumFeeModel == null)
+			stadiumFeeModel = new StadiumFeeModel();
+		return stadiumFeeModel;
+	}
+	
 	@Override
 	public int calculateFee(Vehicle vehicle, LocalDateTime exitDateTime) {
 

@@ -33,7 +33,7 @@ class ParkingLotTest {
 
 	@Test
 	void mallCalculateFeeTest() {
-		MallFeeModel mallFeeModel = new MallFeeModel();
+		MallFeeModel mallFeeModel = MallFeeModel.getInstance();
 
 		Vehicle vehicle = new Vehicle(VehicleType.MOTORCYCLE, LocalDateTime.now());
 		int fee = mallFeeModel.calculateFee(vehicle, LocalDateTime.now().plusMinutes(28));
