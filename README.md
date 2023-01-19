@@ -1,4 +1,4 @@
-# parkinglot
+# ParkingLot Test
 Use "/parkinglot/src/test/resources/test.txt" to provide inputs to the test case.
 Please note the following when giving the inputs.
 1. first line is headers and will be skipped. Follow the headers for the order of input
