@@ -27,7 +27,7 @@ Concepts
     - If we resolve to a cumulative feerule, it will need all the feerules that have <= minrange than the resolved feerule. All the fees add up to give the final fee. 
     - For non cumulative, the feerule itself is enough to get the fee
     - There are 3 variants of the FeeRuleType
-      FLAT: the value is applied as it is
-      HOURLY: the vallue is multiplied by the interval or the remaining interval (in the case of cumulative feerule)
-      DAILY: the vallue is multiplied by the number of days or the remaining number of days (in the case of cumulative feerule)
+      1. FLAT: the value is applied as it is
+      2. HOURLY: the vallue is multiplied by the interval or the remaining interval (in the case of cumulative feerule)
+      3. DAILY: the vallue is multiplied by the number of days or the remaining number of days (in the case of cumulative feerule)
   
