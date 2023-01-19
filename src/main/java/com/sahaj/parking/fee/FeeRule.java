@@ -14,7 +14,7 @@ public class FeeRule {
 	
 	private FeeModelType feeModelType;
 	 
-	private FeeRuleType ruleType;
+	private FeeRuleType feeRuleType;
 	
 	private boolean cumulative;
 
@@ -25,7 +25,7 @@ public class FeeRule {
 		this.hourRange = ValueRange.of(startHour, endHour);
 		this.baseFee = baseFee;
 		this.feeModelType = feeModelType;
-		this.ruleType = ruleType;
+		this.feeRuleType = ruleType;
 		this.cumulative = cumulative;
 	}
 	
@@ -45,8 +45,8 @@ public class FeeRule {
 		return feeModelType;
 	}
 
-	public FeeRuleType getRuleType() {
-		return ruleType;
+	public FeeRuleType getFeeRuleType() {
+		return feeRuleType;
 	}
 	
 	public boolean isCumulative() {

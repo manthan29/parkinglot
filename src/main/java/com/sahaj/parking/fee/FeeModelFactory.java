@@ -7,13 +7,14 @@ public class FeeModelFactory {
 	}
 
 	public static IFeeModel createFeeModel(FeeModelType type) {
-		if (type.equals(FeeModelType.MALL)) {
+		switch (type) {
+		case MALL:
 			return MallFeeModel.getInstance();
-		} else if (type.equals(FeeModelType.STADIUM)) {
+		case STADIUM:
 			return StadiumFeeModel.getInstance();
-		} else if (type.equals(FeeModelType.AIRPORT)) {
+		case AIRPORT:
 			return AirportFeeModel.getInstance();
-		} else {
+		default:
 			throw new IllegalArgumentException("Unexpected value: " + type);
 		}
 	}

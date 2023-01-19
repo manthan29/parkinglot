@@ -3,13 +3,13 @@ package com.sahaj.parking.fee;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import com.sahaj.parking.utils.Utils;
 import com.sahaj.parking.vehicle.VehicleEntry;
 import com.sahaj.parking.vehicle.VehicleType;
 
@@ -23,72 +23,55 @@ public abstract class FeeModel implements IFeeModel {
 		feeRules = constructFeeRules();
 	}
 
-	private int intervalInHour(LocalDateTime entryTime, LocalDateTime exitTime) {
-		int interval = (int) ChronoUnit.MINUTES.between(entryTime, exitTime);
-		return (int) Math.ceil(interval / 60.0);
-	}
-
 	public Optional<Integer> calculateFee(VehicleEntry vehicleEntry, LocalDateTime exitDateTime) {
-
-		int interval = intervalInHour(vehicleEntry.getEntryDateTime(), exitDateTime);
-		int fee = 0;
-		Optional<FeeRule> feeRuleOpt = identifyFeeRuleType(interval, vehicleEntry.getVehicle().getType());
+		int intervalInHours = Utils.intervalInHour(vehicleEntry.getEntryDateTime(), exitDateTime);
+		Optional<FeeRule> feeRuleOpt = identifyFeeRuleType(intervalInHours, vehicleEntry.getVehicle().getVehicleType());
 		if (!feeRuleOpt.isPresent())
 			return Optional.empty();
 		FeeRule feeRule = feeRuleOpt.get();
 		if (feeRule.isCumulative()) {
-			fee = cumulativeCalculation(feeRule, interval);
+			return Optional.ofNullable(cumulativeCalculation(feeRule, intervalInHours));
 		} else {
-			fee = nonCumulativeCalculation(feeRule, interval);
+			return Optional.ofNullable(nonCumulativeCalculation(feeRule, intervalInHours));
 		}
-		return Optional.ofNullable(fee);
-
 	}
 
-	private int nonCumulativeCalculation(FeeRule feeRule, int interval) {
-		switch (feeRule.getRuleType()) {
+	private int nonCumulativeCalculation(FeeRule feeRule, int intervalInHours) {
+		switch (feeRule.getFeeRuleType()) {
 		case FLAT:
 			return feeRule.getBaseFee();
 		case HOURLY:
-			return calculateFeeForHourly(feeRule, interval);
+			return intervalInHours * feeRule.getBaseFee();
 		case DAILY:
-			return calculateFeeForDaily(feeRule, interval);
+			return Utils.calculateDays(intervalInHours) * feeRule.getBaseFee();
 		default:
-			throw new IllegalArgumentException("Unexpected value: " + feeRule.getRuleType());
+			throw new IllegalArgumentException("Unexpected value: " + feeRule.getFeeRuleType());
 		}
 	}
 
-	private int cumulativeCalculation(FeeRule feeRule, int interval) {
+	private int cumulativeCalculation(FeeRule feeRule, int intervalInHours) {
 		int fee = 0;
-		List<FeeRule> cumulativeFeeRules = fetchSortedCumulativeFeeRules(feeRule);
+		List<FeeRule> cumulativeFeeRules = fetchCumulativeFeeRules(feeRule);
 		for (FeeRule fr : cumulativeFeeRules) {
-			switch (fr.getRuleType()) {
+			switch (fr.getFeeRuleType()) {
 			case FLAT:
 				fee = fee + fr.getBaseFee();
 				break;
 			case HOURLY:
-				fee = fee + calculateFeeForHourly(feeRule, remainingInterval(feeRule, interval));
+				fee = fee + feeRule.getBaseFee() * remainingInterval(feeRule, intervalInHours);
 				break;
 			case DAILY:
-				fee = fee + calculateFeeForDaily(feeRule, remainingInterval(feeRule, interval));
+				fee = fee + Utils.calculateDays(intervalInHours) * remainingInterval(feeRule, intervalInHours);
 				break;
 			default:
-				throw new IllegalArgumentException("Unexpected value: " + feeRule.getRuleType());
+				throw new IllegalArgumentException("Unexpected value: " + feeRule.getFeeRuleType());
 			}
 		}
 		return fee;
 	}
 
-	private int remainingInterval(FeeRule feeRule, int interval) {
-		return interval - (int) feeRule.getHourRange().getMinimum();
-	}
-
-	private int calculateFeeForHourly(FeeRule feeRule, int interval) {
-		return feeRule.getBaseFee() * interval;
-	}
-
-	private int calculateFeeForDaily(FeeRule feeRule, int interval) {
-		return calculateDays(interval) * feeRule.getBaseFee();
+	private int remainingInterval(FeeRule feeRule, int intervalInHours) {
+		return intervalInHours - (int) feeRule.getHourRange().getMinimum();
 	}
 
 	protected Optional<FeeRule> identifyFeeRuleType(int intervalInHour, VehicleType vehicleType) {
@@ -99,16 +82,15 @@ public abstract class FeeModel implements IFeeModel {
 		return Optional.empty();
 	}
 
-	protected List<FeeRule> fetchSortedCumulativeFeeRules(FeeRule feeRule) {
+	protected List<FeeRule> fetchCumulativeFeeRules(FeeRule feeRule) {
 		return feeRules.stream()
 				.filter(fr -> fr.getHourRange().getMinimum() <= feeRule.getHourRange().getMinimum()
 						&& feeRule.getVehicleType() == fr.getVehicleType())
-				.sorted((f1, f2) -> Long.compare(f1.getHourRange().getMinimum(), f2.getHourRange().getMinimum()))
 				.collect(Collectors.toList());
 	}
-
+	
+	//Reading the fee rules from the file
 	protected List<FeeRule> constructFeeRules() {
-
 		try (Scanner sc = new Scanner(new File("src/main/res/bootstrap/fee_rules"));) {
 			sc.nextLine();
 			feeRules = new ArrayList<>();
@@ -134,10 +116,6 @@ public abstract class FeeModel implements IFeeModel {
 			System.err.println("Could not reach file \"fee_rules\" and could not create the rules");
 			return new ArrayList<>();
 		}
-	}
-
-	private int calculateDays(int interval) {
-		return interval / 24 + ((interval % 24 > 0) ? 1 : 0);
 	}
 
 }

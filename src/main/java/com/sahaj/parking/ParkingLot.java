@@ -16,16 +16,13 @@ import com.sahaj.parking.vehicle.VehicleType;
 public class ParkingLot {
 
 	private IFeeModel feeModel;
-
 	private Map<Integer, VehicleEntry> vehicleEntries;
-
 	private Map<VehicleType, Integer> parkingSpots;
-
+	
 	public ParkingLot(FeeModelType feeModelType, Map<VehicleType, Integer> parkingSpots) {
-
 		this.parkingSpots = new HashMap<>();
 		this.parkingSpots = parkingSpots;
-		// Stadium and Airport do not allow Bus
+		//Stadium and Airport do not allow Bus parking
 		if (feeModelType == FeeModelType.STADIUM || feeModelType == FeeModelType.AIRPORT)
 			this.parkingSpots.remove(VehicleType.BUS);
 		vehicleEntries = new HashMap<>();
@@ -33,22 +30,21 @@ public class ParkingLot {
 	}
 
 	public Optional<Ticket> park(VehicleEntry vehicleEntry) {
-		int spots = parkingSpots.getOrDefault(vehicleEntry.getVehicle().getType(), 0);
+		int spots = parkingSpots.getOrDefault(vehicleEntry.getVehicle().getVehicleType(), 0);
 		if (spots == 0)
 			return Optional.empty();
 		else
-			parkingSpots.put(vehicleEntry.getVehicle().getType(), spots - 1);
+			parkingSpots.put(vehicleEntry.getVehicle().getVehicleType(), spots - 1);
 
 		int parkingSpot = getSpotNoForParking();
-		
 		vehicleEntries.put(parkingSpot, vehicleEntry);
 		return Optional.of(new Ticket(parkingSpot, vehicleEntry.getEntryDateTime()));
 	}
 
 	public Optional<Receipt> unpark(Ticket ticket, LocalDateTime exitDateTime) {
 		VehicleEntry vehicleEntry = vehicleEntries.get(ticket.getSpotNo());
-		int spots = parkingSpots.get(vehicleEntry.getVehicle().getType());
-		parkingSpots.put(vehicleEntry.getVehicle().getType(), spots + 1);
+		int spots = parkingSpots.get(vehicleEntry.getVehicle().getVehicleType());
+		parkingSpots.put(vehicleEntry.getVehicle().getVehicleType(), spots + 1);
 		vehicleEntries.remove(ticket.getSpotNo());
 		Optional<Integer> feeOpt = feeModel.calculateFee(vehicleEntry, exitDateTime);
 		if (!feeOpt.isPresent())

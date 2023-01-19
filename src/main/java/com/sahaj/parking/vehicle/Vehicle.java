@@ -1,17 +1,15 @@
 package com.sahaj.parking.vehicle;
 
-import java.time.LocalDateTime;
-
 public class Vehicle {
 
-	private VehicleType type;
+	private VehicleType vehicleType;
 	
 	public Vehicle(VehicleType type) {
-		this.type = type;
+		this.vehicleType = type;
 	}
 
-	public VehicleType getType() {
-		return type;
+	public VehicleType getVehicleType() {
+		return vehicleType;
 	}
 
 }
