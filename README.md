@@ -23,10 +23,10 @@ Concepts
   d. maxRange (the larger value of the interval)
   There should be no overlap in the intervals within same FeeModelType and VehicleType
 3. Based on the above attributes, a feeRule is resolved and the rules are applied in the following manner
-  a. The fee rule can either be cumulative or non cumulative. 
-  b. If we resolve to a cumulative feerule, it will need all the feerules that have <= minrange than the resolved feerule. All the fees add up to give the final fee. 
-  c. For non cumulative, the feerule itself is enough to get the fee
-  d. There are 3 variants of the FeeRuleType
+   a. The fee rule can either be cumulative or non cumulative. 
+   b. If we resolve to a cumulative feerule, it will need all the feerules that have <= minrange than the resolved feerule. All the fees add up to give the final fee. 
+   c. For non cumulative, the feerule itself is enough to get the fee
+   d. There are 3 variants of the FeeRuleType
     - FLAT: the value is applied as it is
     - HOURLY: the vallue is multiplied by the interval or the remaining interval (in the case of cumulative feerule)
     - DAILY: the vallue is multiplied by the number of days or the remaining number of days (in the case of cumulative feerule)
