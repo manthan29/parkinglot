@@ -86,7 +86,7 @@ public abstract class FeeModel implements IFeeModel {
 	}
 	
 	protected List<FeeRule> fetchFeeRulesForModelType() {
-		FeeRuleReader feeRuleReader = FeeRuleReader.getInstance();
+		FeeRuleDAO feeRuleReader = FeeRuleDAO.getInstance();
 		return feeRuleReader.getFeeRulesForFeeModelType(feeModelType);
 	}
 

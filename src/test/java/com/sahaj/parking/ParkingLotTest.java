@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,7 @@ import com.sahaj.parking.exception.BootstrapLoadFailException;
 import com.sahaj.parking.fee.AirportFeeModel;
 import com.sahaj.parking.fee.FeeModelFactory;
 import com.sahaj.parking.fee.FeeModelType;
-import com.sahaj.parking.fee.FeeRuleReader;
+import com.sahaj.parking.fee.FeeRuleDAO;
 import com.sahaj.parking.fee.MallFeeModel;
 import com.sahaj.parking.fee.StadiumFeeModel;
 import com.sahaj.parking.ticket.Receipt;
@@ -52,7 +51,7 @@ class ParkingLotTest {
 
 	@Test
 	void mallMotorcycle28MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -64,7 +63,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "220,30", "899,390" })
 	void stadiumMotorcycle220MinutesTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -75,7 +74,7 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumCar690MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -86,7 +85,7 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumCar580MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -98,7 +97,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "55,0", "899,60", "1452,160" })
 	void airportMotorcycle55MinutesTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -110,7 +109,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "50,60", "1439,80", "4380,400" })
 	void airportCarTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -122,7 +121,7 @@ class ParkingLotTest {
 	@Test
 	void overbookingTest() {
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(3, 3);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(3, 3);
 		parkingLot.park(vehicle).get();
 		parkingLot.park(vehicle).get();
 		parkingLot.park(vehicle).get();
@@ -140,7 +139,7 @@ class ParkingLotTest {
 		// create the appropriate vehicle entry object
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.valueOf(vehicleType)), entryTime);
 		FeeModelType feeModelType = FeeModelType.valueOf(locationType);
-		ParkingLot parkingLot;
+		IParkingLot parkingLot;
 		switch (feeModelType) {
 		case MALL:
 			parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(motorcycleSpots, carSpots, busSpots);
@@ -165,14 +164,14 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumBusTest() {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
 
 	@Test
 	void airportBusTest() {
-		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
@@ -195,17 +194,9 @@ class ParkingLotTest {
 	@Test
 	void customFeeRuleFilePath() {
 		reset();
-		FeeRuleReader feeRuleReader = FeeRuleReader.getInstance();
+		FeeRuleDAO feeRuleReader = FeeRuleDAO.getInstance();
 		assertThrows(BootstrapLoadFailException.class,
 				() -> feeRuleReader.loadFeeRulesFromFileByFeeModelType("some_file"));
-	}
-
-	private HashMap<VehicleType, Integer> getParkingSpots(int motorcycleSpots, int carSpots, int busSpots) {
-		HashMap<VehicleType, Integer> parkingSpots = new HashMap<VehicleType, Integer>();
-		parkingSpots.put(VehicleType.MOTORCYCLE, motorcycleSpots);
-		parkingSpots.put(VehicleType.CAR, carSpots);
-		parkingSpots.put(VehicleType.BUS, busSpots);
-		return parkingSpots;
 	}
 
 	private void reset() {

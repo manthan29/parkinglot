@@ -13,7 +13,7 @@ import com.sahaj.parking.ticket.Ticket;
 import com.sahaj.parking.vehicle.VehicleEntry;
 import com.sahaj.parking.vehicle.VehicleType;
 
-public class ParkingLot {
+public class ParkingLot implements IParkingLot{
 
 	private IFeeModel feeModel;
 	private Map<Integer, VehicleEntry> vehicleEntries;

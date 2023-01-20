@@ -12,21 +12,21 @@ import com.sahaj.parking.exception.BootstrapLoadFailException;
 import com.sahaj.parking.exception.ErrorCode;
 import com.sahaj.parking.vehicle.VehicleType;
 
-public class FeeRuleReader {
+public class FeeRuleDAO {
 
 	private static final String FEE_RULES_FILE_PATH = "src/main/res/bootstrap/fee_rules";
 	private Map<FeeModelType, List<FeeRule>> feeRuleMap = new HashMap<>();
 	
-	private static FeeRuleReader feeRuleReader;
+	private static FeeRuleDAO feeRuleReader;
 	
-	private FeeRuleReader(String filePath) {
+	private FeeRuleDAO(String filePath) {
 		super();
 		loadFeeRulesFromFileByFeeModelType(filePath);
 	}
 	
-	public static FeeRuleReader getInstance() {
+	public static FeeRuleDAO getInstance() {
 		if(feeRuleReader==null) {
-			feeRuleReader = new FeeRuleReader(FEE_RULES_FILE_PATH);
+			feeRuleReader = new FeeRuleDAO(FEE_RULES_FILE_PATH);
 		}
 		return feeRuleReader;
 	}
@@ -35,9 +35,9 @@ public class FeeRuleReader {
 	 * @param filePath To read the Fee Rules from a custom file
 	 * @return singleton instance of FeeRuleReader
 	 */
-	public static FeeRuleReader getInstance(String filePath) {
+	public static FeeRuleDAO getInstance(String filePath) {
 		if(feeRuleReader==null) {
-			feeRuleReader = new FeeRuleReader(filePath);
+			feeRuleReader = new FeeRuleDAO(filePath);
 		}
 		return feeRuleReader;
 	}
