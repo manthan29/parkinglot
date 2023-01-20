@@ -50,7 +50,29 @@ class ParkingLotTest {
 	}
 
 	@Test
-	void mallMotorcycle28MinutesTest() {
+	void mallCarTest() {
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
+		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
+		Ticket ticket = parkingLot.park(vehicle).get();
+		System.out.println(ticket);
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(280)).get();
+		System.out.println(receipt);
+		assertEquals(100, receipt.getFee());
+	}
+
+	@Test
+	void mallBusTest() {
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
+		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
+		Ticket ticket = parkingLot.park(vehicle).get();
+		System.out.println(ticket);
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(180)).get();
+		System.out.println(receipt);
+		assertEquals(150, receipt.getFee());
+	}
+
+	@Test
+	void mallMotorcycleTest() {
 		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
@@ -62,7 +84,7 @@ class ParkingLotTest {
 
 	@ParameterizedTest
 	@CsvSource({ "220,30", "899,390" })
-	void stadiumMotorcycle220MinutesTest(int minsParked, int expectedFee) {
+	void stadiumMotorcycleTest(int minsParked, int expectedFee) {
 		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
@@ -72,31 +94,28 @@ class ParkingLotTest {
 		assertEquals(expectedFee, receipt.getFee());
 	}
 
-	@Test
-	void stadiumCar690MinutesTest() {
+	@ParameterizedTest
+	@CsvSource({ "690,180", "785, 580" })
+	void stadiumCarTest(int minsParked, int expectedFee) {
 		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(690)).get();
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(minsParked)).get();
 		System.out.println(receipt);
-		assertEquals(180, receipt.getFee());
+		assertEquals(expectedFee, receipt.getFee());
 	}
 
 	@Test
-	void stadiumCar580MinutesTest() {
+	void stadiumBusTest() {
 		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(785)).get();
-		System.out.println(receipt);
-		assertEquals(580, receipt.getFee());
+		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
+		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
 
 	@ParameterizedTest
 	@CsvSource({ "55,0", "899,60", "1452,160" })
-	void airportMotorcycle55MinutesTest(int minsParked, int expectedFee) {
+	void airportMotorcycleTest(int minsParked, int expectedFee) {
 		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
@@ -116,6 +135,13 @@ class ParkingLotTest {
 		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(minsParked)).get();
 		System.out.println(receipt);
 		assertEquals(expectedFee, receipt.getFee());
+	}
+
+	@Test
+	void airportBusTest() {
+		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
+		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
+		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
 
 	@Test
@@ -160,20 +186,6 @@ class ParkingLotTest {
 			System.out.println(receipt);
 			assertEquals(expectedFee, receipt.getFee());
 		}, () -> assertEquals(expectedFee, -1));
-	}
-
-	@Test
-	void stadiumBusTest() {
-		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
-		assertTrue(parkingLot.park(vehicle).isEmpty());
-	}
-
-	@Test
-	void airportBusTest() {
-		IParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
-		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
 
 	@Test
