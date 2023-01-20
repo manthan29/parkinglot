@@ -18,13 +18,10 @@ public class ParkingLot {
 	private IFeeModel feeModel;
 	private Map<Integer, VehicleEntry> vehicleEntries;
 	private Map<VehicleType, Integer> parkingSpots;
-	
-	public ParkingLot(FeeModelType feeModelType, Map<VehicleType, Integer> parkingSpots) {
+
+	private ParkingLot(FeeModelType feeModelType, Map<VehicleType, Integer> parkingSpots) {
 		this.parkingSpots = new HashMap<>();
 		this.parkingSpots = parkingSpots;
-		//Stadium and Airport do not allow Bus parking
-		if (feeModelType == FeeModelType.STADIUM || feeModelType == FeeModelType.AIRPORT)
-			this.parkingSpots.remove(VehicleType.BUS);
 		vehicleEntries = new HashMap<>();
 		feeModel = FeeModelFactory.createFeeModel(feeModelType);
 	}
@@ -58,6 +55,35 @@ public class ParkingLot {
 			nextAvaiableParkingSpot++;
 		}
 		return nextAvaiableParkingSpot;
+	}
+
+	public static class ParkingLotBuilder {
+
+		public ParkingLot buildMallParkingLot(int motorcycleSpots, int carSpots, int busSpots) {
+			HashMap<VehicleType, Integer> parkingSpots = new HashMap<>();
+			parkingSpots.put(VehicleType.MOTORCYCLE, motorcycleSpots);
+			parkingSpots.put(VehicleType.CAR, carSpots);
+			parkingSpots.put(VehicleType.BUS, busSpots);
+			// Stadium and Airport do not allow Bus parking
+			return new ParkingLot(FeeModelType.MALL, parkingSpots);
+		}
+
+		public ParkingLot buildStadiumParkingLot(int motorcycleSpots, int carSpots) {
+			HashMap<VehicleType, Integer> parkingSpots = new HashMap<>();
+			parkingSpots.put(VehicleType.MOTORCYCLE, motorcycleSpots);
+			parkingSpots.put(VehicleType.CAR, carSpots);
+			// Stadium and Airport do not allow Bus parking
+			return new ParkingLot(FeeModelType.STADIUM, parkingSpots);
+		}
+
+		public ParkingLot buildAirportParkingLot(int motorcycleSpots, int carSpots) {
+			HashMap<VehicleType, Integer> parkingSpots = new HashMap<>();
+			parkingSpots.put(VehicleType.MOTORCYCLE, motorcycleSpots);
+			parkingSpots.put(VehicleType.CAR, carSpots);
+			// Stadium and Airport do not allow Bus parking
+			return new ParkingLot(FeeModelType.AIRPORT, parkingSpots);
+		}
+
 	}
 
 }

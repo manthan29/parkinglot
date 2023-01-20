@@ -52,7 +52,7 @@ class ParkingLotTest {
 
 	@Test
 	void mallMotorcycle28MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.MALL, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(10, 10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -64,7 +64,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "220,30", "899,390" })
 	void stadiumMotorcycle220MinutesTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -75,7 +75,7 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumCar690MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -86,7 +86,7 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumCar580MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -98,7 +98,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "55,0", "899,60", "1452,160" })
 	void airportMotorcycle55MinutesTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -110,7 +110,7 @@ class ParkingLotTest {
 	@ParameterizedTest
 	@CsvSource({ "50,60", "1439,80", "4380,400" })
 	void airportCarTest(int minsParked, int expectedFee) {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
@@ -122,7 +122,7 @@ class ParkingLotTest {
 	@Test
 	void overbookingTest() {
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.MALL, getParkingSpots(20, 3, 0));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(3, 3);
 		parkingLot.park(vehicle).get();
 		parkingLot.park(vehicle).get();
 		parkingLot.park(vehicle).get();
@@ -139,9 +139,22 @@ class ParkingLotTest {
 		LocalDateTime exitTime = LocalDateTime.of(2022, 1, exitDay, exitHour, exitMinute);
 		// create the appropriate vehicle entry object
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.valueOf(vehicleType)), entryTime);
+		FeeModelType feeModelType = FeeModelType.valueOf(locationType);
+		ParkingLot parkingLot;
+		switch (feeModelType) {
+		case MALL:
+			parkingLot = new ParkingLot.ParkingLotBuilder().buildMallParkingLot(motorcycleSpots, carSpots, busSpots);
+			break;
+		case STADIUM:
+			parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(motorcycleSpots, carSpots);
+			break;
+		case AIRPORT:
+			parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(motorcycleSpots, carSpots);
+			break;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + locationType);
+		}
 
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.valueOf(locationType),
-				getParkingSpots(motorcycleSpots, carSpots, busSpots));
 		parkingLot.park(vehicle).ifPresentOrElse(ticket -> {
 			System.out.println(ticket);
 			Receipt receipt = parkingLot.unpark(ticket, exitTime).get();
@@ -152,14 +165,14 @@ class ParkingLotTest {
 
 	@Test
 	void stadiumBusTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildStadiumParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
 
 	@Test
 	void airportBusTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
+		ParkingLot parkingLot = new ParkingLot.ParkingLotBuilder().buildAirportParkingLot(10, 10);
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
