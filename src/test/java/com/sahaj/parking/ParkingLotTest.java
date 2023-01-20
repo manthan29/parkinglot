@@ -1,22 +1,26 @@
 package com.sahaj.parking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.Scanner;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import com.sahaj.parking.exception.BootstrapLoadFailException;
 import com.sahaj.parking.fee.AirportFeeModel;
+import com.sahaj.parking.fee.FeeModelFactory;
 import com.sahaj.parking.fee.FeeModelType;
+import com.sahaj.parking.fee.FeeRuleReader;
+import com.sahaj.parking.fee.MallFeeModel;
 import com.sahaj.parking.fee.StadiumFeeModel;
 import com.sahaj.parking.ticket.Receipt;
 import com.sahaj.parking.ticket.Ticket;
@@ -32,18 +36,13 @@ class ParkingLotTest {
 		System.out.println(testInfo.getDisplayName());
 	}
 
-	@AfterEach
-	void conclude() {
-		System.out.println("===============");
-	}
-
 	@Test
 	void stadiumBusCalculateFeeTest() {
 		StadiumFeeModel stadiumFeeModel = StadiumFeeModel.getInstance();
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(stadiumFeeModel.calculateFee(vehicle, LocalDateTime.now().plusMinutes(28)).isEmpty());
 	}
-	
+
 	@Test
 	void airportBusCalculateFeeTest() {
 		AirportFeeModel airportFeeModel = AirportFeeModel.getInstance();
@@ -62,15 +61,16 @@ class ParkingLotTest {
 		assertEquals(10, receipt.getFee());
 	}
 
-	@Test
-	void stadiumMotorcycle220MinutesTest() {
+	@ParameterizedTest
+	@CsvSource({ "220,30", "899,390" })
+	void stadiumMotorcycle220MinutesTest(int minsParked, int expectedFee) {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(220)).get();
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(minsParked)).get();
 		System.out.println(receipt);
-		assertEquals(30, receipt.getFee());
+		assertEquals(expectedFee, receipt.getFee());
 	}
 
 	@Test
@@ -85,17 +85,6 @@ class ParkingLotTest {
 	}
 
 	@Test
-	void stadiumMotorcycle390MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(899)).get();
-		System.out.println(receipt);
-		assertEquals(390, receipt.getFee());
-	}
-
-	@Test
 	void stadiumCar580MinutesTest() {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.STADIUM, getParkingSpots(10, 10, 10));
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
@@ -106,71 +95,28 @@ class ParkingLotTest {
 		assertEquals(580, receipt.getFee());
 	}
 
-	@Test
-	void airportCar55MinutesTest() {
+	@ParameterizedTest
+	@CsvSource({ "55,0", "899,60", "1452,160" })
+	void airportMotorcycle55MinutesTest(int minsParked, int expectedFee) {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(55)).get();
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(minsParked)).get();
 		System.out.println(receipt);
-		assertEquals(0, receipt.getFee());
+		assertEquals(expectedFee, receipt.getFee());
 	}
 
-	@Test
-	void airportMotorcycle899MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(899)).get();
-		System.out.println(receipt);
-		assertEquals(60, receipt.getFee());
-	}
-
-	@Test
-	void airportMotorcycle1452MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.MOTORCYCLE), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(1452)).get();
-		System.out.println(receipt);
-		assertEquals(160, receipt.getFee());
-	}
-
-	@Test
-	void airportMotorcycle50MinutesTest() {
+	@ParameterizedTest
+	@CsvSource({ "50,60", "1439,80", "4380,400" })
+	void airportCarTest(int minsParked, int expectedFee) {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
 		Ticket ticket = parkingLot.park(vehicle).get();
 		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(50)).get();
+		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(minsParked)).get();
 		System.out.println(receipt);
-		assertEquals(60, receipt.getFee());
-	}
-
-	@Test
-	void airportCar1439MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(1439)).get();
-		System.out.println(receipt);
-		assertEquals(80, receipt.getFee());
-	}
-
-	@Test
-	void airportCar4380MinutesTest() {
-		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
-		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.CAR), LocalDateTime.now());
-		Ticket ticket = parkingLot.park(vehicle).get();
-		System.out.println(ticket);
-		Receipt receipt = parkingLot.unpark(ticket, vehicle.getEntryDateTime().plusMinutes(4380)).get();
-		System.out.println(receipt);
-		assertEquals(400, receipt.getFee());
-
+		assertEquals(expectedFee, receipt.getFee());
 	}
 
 	@Test
@@ -184,41 +130,24 @@ class ParkingLotTest {
 		assertTrue(ticket4.isEmpty());
 	}
 
-	@Test
-	void testFromFile() throws FileNotFoundException {
-		// open the file containing the test cases
-		Scanner sc = new Scanner(new File("src/test/resources/test.txt"));
-		sc.nextLine();
-		// read each line from the file and parse the test case
-		while (sc.hasNextLine()) {
-			String line = sc.nextLine();
-			String[] parts = line.split(" ");
-			String locationType = parts[0];
-			int motorcycleSpots = Integer.parseInt(parts[1]);
-			int carSpots = Integer.parseInt(parts[2]);
-			int busSpots = Integer.parseInt(parts[3]);
-			String vehicleType = parts[4];
-			int entryHour = Integer.parseInt(parts[5]);
-			int entryMinute = Integer.parseInt(parts[6]);
-			int exitHour = Integer.parseInt(parts[7]);
-			int exitMinute = Integer.parseInt(parts[8]);
-			int expectedFee = Integer.parseInt(parts[9]);
+	@ParameterizedTest
+	@CsvFileSource(resources = "/test.txt", numLinesToSkip = 1, delimiter = ' ')
+	void testFromFile(String locationType, int motorcycleSpots, int carSpots, int busSpots, String vehicleType,
+			int entryDay, int entryHour, int entryMinute, int exitDay, int exitHour, int exitMinute, int expectedFee) {
 
-			LocalDateTime entryTime = LocalDateTime.of(2022, 1, 1, entryHour, entryMinute);
-			LocalDateTime exitTime = LocalDateTime.of(2022, 1, 1, exitHour, exitMinute);
-			// create the appropriate vehicle entry object
-			VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.valueOf(vehicleType)), entryTime);
+		LocalDateTime entryTime = LocalDateTime.of(2022, 1, entryDay, entryHour, entryMinute);
+		LocalDateTime exitTime = LocalDateTime.of(2022, 1, exitDay, exitHour, exitMinute);
+		// create the appropriate vehicle entry object
+		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.valueOf(vehicleType)), entryTime);
 
-			ParkingLot parkingLot = new ParkingLot(FeeModelType.valueOf(locationType),
-					getParkingSpots(motorcycleSpots, carSpots, busSpots));
-			parkingLot.park(vehicle).ifPresentOrElse(ticket -> {
-				System.out.println(ticket);
-				Receipt receipt = parkingLot.unpark(ticket, exitTime).get();
-				System.out.println(receipt);
-				assertEquals(expectedFee, receipt.getFee());
-			}, () -> assertEquals(expectedFee, -1));
-
-		}
+		ParkingLot parkingLot = new ParkingLot(FeeModelType.valueOf(locationType),
+				getParkingSpots(motorcycleSpots, carSpots, busSpots));
+		parkingLot.park(vehicle).ifPresentOrElse(ticket -> {
+			System.out.println(ticket);
+			Receipt receipt = parkingLot.unpark(ticket, exitTime).get();
+			System.out.println(receipt);
+			assertEquals(expectedFee, receipt.getFee());
+		}, () -> assertEquals(expectedFee, -1));
 	}
 
 	@Test
@@ -227,12 +156,35 @@ class ParkingLotTest {
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
 	}
-	
+
 	@Test
 	void airportBusTest() {
 		ParkingLot parkingLot = new ParkingLot(FeeModelType.AIRPORT, getParkingSpots(10, 10, 10));
 		VehicleEntry vehicle = new VehicleEntry(new Vehicle(VehicleType.BUS), LocalDateTime.now());
 		assertTrue(parkingLot.park(vehicle).isEmpty());
+	}
+
+	@Test
+	void feeModelFactoryMallTest() {
+		assertTrue(FeeModelFactory.createFeeModel(FeeModelType.MALL) instanceof MallFeeModel);
+	}
+
+	@Test
+	void feeModelFactoryStadiumTest() {
+		assertTrue(FeeModelFactory.createFeeModel(FeeModelType.STADIUM) instanceof StadiumFeeModel);
+	}
+
+	@Test
+	void feeModelFactoryAirportTest() {
+		assertTrue(FeeModelFactory.createFeeModel(FeeModelType.AIRPORT) instanceof AirportFeeModel);
+	}
+
+	@Test
+	void customFeeRuleFilePath() {
+		reset();
+		FeeRuleReader feeRuleReader = FeeRuleReader.getInstance();
+		assertThrows(BootstrapLoadFailException.class,
+				() -> feeRuleReader.loadFeeRulesFromFileByFeeModelType("some_file"));
 	}
 
 	private HashMap<VehicleType, Integer> getParkingSpots(int motorcycleSpots, int carSpots, int busSpots) {

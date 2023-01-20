@@ -1,12 +1,8 @@
 package com.sahaj.parking.fee;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import com.sahaj.parking.utils.Utils;
@@ -20,7 +16,7 @@ public abstract class FeeModel implements IFeeModel {
 
 	protected FeeModel(FeeModelType feeModelType) {
 		this.feeModelType = feeModelType;
-		feeRules = constructFeeRules();
+		feeRules = fetchFeeRulesForModelType();
 	}
 
 	public Optional<Integer> calculateFee(VehicleEntry vehicleEntry, LocalDateTime exitDateTime) {
@@ -89,33 +85,9 @@ public abstract class FeeModel implements IFeeModel {
 				.collect(Collectors.toList());
 	}
 	
-	//Reading the fee rules from the file
-	protected List<FeeRule> constructFeeRules() {
-		try (Scanner sc = new Scanner(new File("src/main/res/bootstrap/fee_rules"));) {
-			sc.nextLine();
-			feeRules = new ArrayList<>();
-			// read each line from the file and parse the test case
-			while (sc.hasNextLine()) {
-				String line = sc.nextLine();
-				String[] parts = line.split(" ");
-				String feeModel = parts[0];
-				String vehicleType = parts[1];
-				String feeType = parts[2];
-				int minRange = Integer.parseInt(parts[3]);
-				int maxRange = Integer.parseInt(parts[4]);
-				int fee = Integer.parseInt(parts[5]);
-				boolean cumulative = Boolean.parseBoolean(parts[6]);
-				if (FeeModelType.valueOf(feeModel).equals(feeModelType)) {
-					FeeRule feeRule = new FeeRule(VehicleType.valueOf(vehicleType), minRange, maxRange, fee,
-							FeeModelType.valueOf(feeModel), FeeRuleType.valueOf(feeType), cumulative);
-					feeRules.add(feeRule);
-				}
-			}
-			return feeRules;
-		} catch (FileNotFoundException e) {
-			System.err.println("Could not reach file \"fee_rules\" and could not create the rules");
-			return new ArrayList<>();
-		}
+	protected List<FeeRule> fetchFeeRulesForModelType() {
+		FeeRuleReader feeRuleReader = FeeRuleReader.getInstance();
+		return feeRuleReader.getFeeRulesForFeeModelType(feeModelType);
 	}
 
 }

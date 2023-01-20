@@ -5,6 +5,10 @@ import java.time.temporal.ChronoUnit;
 
 public class Utils {
 
+	private Utils() {
+		
+	}
+	
 	public static int intervalInHour(LocalDateTime entryTime, LocalDateTime exitTime) {
 		int intervalInHours = (int) ChronoUnit.MINUTES.between(entryTime, exitTime);
 		return (int) Math.ceil(intervalInHours / 60.0);
